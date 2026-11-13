@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ملف app-ads.txt</title>
+<meta name="robots" content="noindex">
+<style>
+  :root { --bg:#fffaf0; --card:#fff; --ink:#3a2a10; --muted:#7a6a50; --line:#ead9bd; --accent:#b5651d; --ok:#2e7d32; }
+  * { box-sizing:border-box; }
+  body { margin:0; font-family:system-ui,"Segoe UI",Tahoma,sans-serif; background:var(--bg); color:var(--ink); line-height:1.7; }
+  main { max-width:720px; margin:0 auto; padding:24px 16px 48px; }
+  h1 { font-size:1.6rem; margin:0 0 4px; }
+  p.lead { color:var(--muted); margin:0 0 20px; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:16px; margin-bottom:16px; }
+  h2 { font-size:1.1rem; margin:0 0 10px; }
+  pre { direction:ltr; text-align:left; background:#fbf5ea; border:1px solid var(--line); border-radius:8px; padding:12px; overflow-x:auto; margin:0 0 12px; font-size:.9rem; white-space:pre-wrap; word-break:break-all; }
+  .row { display:flex; flex-wrap:wrap; gap:8px; }
+  .btn { display:inline-block; border:0; border-radius:8px; padding:10px 14px; font:inherit; cursor:pointer; text-decoration:none; background:var(--accent); color:#fff; }
+  .btn.ghost { background:transparent; color:var(--accent); border:1px solid var(--accent); }
+  ol { padding-inline-start:20px; margin:0; }
+  li { margin-bottom:6px; }
+  code { direction:ltr; unicode-bidi:isolate; background:#fbf5ea; padding:1px 5px; border-radius:4px; }
+  #status { color:var(--ok); min-height:1.5em; margin-top:8px; }
+  input { width:100%; direction:ltr; font:inherit; padding:8px 10px; border:1px solid var(--line); border-radius:8px; margin-bottom:8px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>ملف app-ads.txt</h1>
+  <p class="lead">ملف واحد بيخدم كل تطبيقاتك. أي تطبيق موقعه على Google Play هو <code>https://mohtazcanada.github.io</code> بيقرأ هالملف.</p>
+
+  <section class="card">
+    <h2>الملف الحالي</h2>
+    <pre id="file">جارٍ التحميل…</pre>
+    <div class="row">
+      <button class="btn" id="copy">نسخ</button>
+      <a class="btn ghost" href="https://github.com/mohtazcanada/mohtazcanada.github.io/edit/main/app-ads.txt" target="_blank" rel="noopener">تعديل الملف على GitHub</a>
+      <a class="btn ghost" href="app-ads.txt" target="_blank" rel="noopener">فتح الرابط المباشر</a>
+    </div>
+    <div id="status"></div>
+  </section>
+
+  <section class="card">
+    <h2>إضافة سطر جديد</h2>
+    <p>إذا عندك حساب AdMob تاني، أو شبكة إعلانات تانية، الصق سطرها هون وانسخ الملف الكامل الجديد:</p>
+    <input id="newLine" placeholder="google.com, pub-XXXXXXXXXXXXXXXX, DIRECT, f08c47fec0942fa0">
+    <button class="btn" id="merge">نسخ الملف مع السطر الجديد</button>
+    <p style="margin:10px 0 0;color:var(--muted)">بعدها اكبس «تعديل الملف على GitHub»، امسح القديم، الصق الجديد، واكبس <b>Commit changes</b>. التغيير بيظهر خلال دقيقة أو دقيقتين.</p>
+  </section>
+
+  <section class="card">
+    <h2>لتربط تطبيق جديد</h2>
+    <ol>
+      <li>بـPlay Console: إعدادات المتجر ← تفاصيل الاتصال ← الموقع الإلكتروني: <code>https://mohtazcanada.github.io</code></li>
+      <li>تأكد إنو سطر الـ<code>pub-</code> تبع حساب AdMob موجود بالملف فوق.</li>
+      <li>بـAdMob: افتح التطبيق ← app-ads.txt ← <b>Check for updates</b> (ممكن ياخد لحد 24 ساعة).</li>
+    </ol>
+  </section>
+</main>
+<script>
+  var current = "";
+  var fileEl = document.getElementById("file");
+  var statusEl = document.getElementById("status");
+  function say(t) { statusEl.textContent = t; setTimeout(function () { statusEl.textContent = ""; }, 3000); }
+  function copy(text) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(function () { say("تم النسخ ✓"); }, function () { fallback(text); });
+    } else { fallback(text); }
+  }
+  function fallback(text) {
+    var t = document.createElement("textarea"); t.value = text; document.body.appendChild(t); t.select();
+    try { document.execCommand("copy"); say("تم النسخ ✓"); } catch (e) { say("ما زبط النسخ، انسخ يدوياً"); }
+    document.body.removeChild(t);
+  }
+  fetch("app-ads.txt", { cache: "no-store" }).then(function (r) { return r.text(); }).then(function (t) {
+    current = t.trim(); fileEl.textContent = current || "(الملف فاضي)";
+  }).catch(function () { fileEl.textContent = "ما قدرت إقرأ الملف."; });
+  document.getElementById("copy").onclick = function () { copy(current); };
+  document.getElementById("merge").onclick = function () {
+    var line = document.getElementById("newLine").value.trim();
+    if (!line) { say("الصق السطر أول"); return; }
+    if (current.split(/\r?\n/).some(function (l) { return l.trim() === line; })) { say("هالسطر موجود من قبل"); return; }
+    copy((current ? current + "\n" : "") + line + "\n");
+  };
+</script>
+</body>
+</html>
